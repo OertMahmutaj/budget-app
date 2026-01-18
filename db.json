@@ -1,0 +1,104 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "test",
+      "password": "test"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "06bf",
+      "type": "expense",
+      "amount": 1000,
+      "category": "rent",
+      "date": "2026-01-18"
+    },
+    {
+      "id": "a67c",
+      "type": "expense",
+      "amount": 500,
+      "category": "loan",
+      "date": "2026-01-18"
+    },
+    {
+      "id": "8a89",
+      "type": "expense",
+      "amount": 255,
+      "category": "loan",
+      "date": "2026-01-18"
+    },
+    {
+      "id": "83a0",
+      "type": "expense",
+      "amount": 500,
+      "category": "something",
+      "date": "2026-01-18"
+    }
+  ],
+  "income": [
+    {
+      "id": "4c36",
+      "monthlyIncome": "2000"
+    },
+    {
+      "id": "a385",
+      "monthlyIncome": "1700"
+    },
+    {
+      "id": "550e",
+      "monthlyIncome": "1500"
+    },
+    {
+      "id": "64b5",
+      "monthlyIncome": "1700"
+    },
+    {
+      "id": "4889",
+      "monthlyIncome": 1500
+    },
+    {
+      "id": "5cd7",
+      "monthlyIncome": 1700
+    },
+    {
+      "id": "23e8",
+      "monthlyIncome": 2000
+    },
+    {
+      "id": "c8fe",
+      "monthlyIncome": 5000
+    },
+    {
+      "id": "12fb",
+      "monthlyIncome": 0
+    },
+    {
+      "id": "a6d8",
+      "monthlyIncome": 2000
+    },
+    {
+      "id": "2204",
+      "monthlyIncome": 5000
+    }
+  ],
+  "savings": [
+    {
+      "id": "1",
+      "percentage": 10,
+      "totalSaved": 16,
+      "dailySaved": 0,
+      "lastUpdated": "2026-01-18"
+    }
+  ],
+  "emergencyFund": [
+    {
+      "id": "1",
+      "percentage": 0,
+      "targetAmount": 1000,
+      "currentAmount": 0,
+      "dailySaved": 0,
+      "lastUpdated": "2026-01-18"
+    }
+  ]
+}
