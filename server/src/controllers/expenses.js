@@ -1,6 +1,6 @@
 const express = require('express');
-const Expense = require('../models/expense');
-const User = require('../models/user');
+const Expense = require('../models/expenses');
+const User = require('../models/users');
 
 const expensesRouter = express.Router();
 

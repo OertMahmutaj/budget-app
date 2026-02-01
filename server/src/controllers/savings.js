@@ -1,6 +1,6 @@
 const express = require('express');
 const Savings = require('../models/savings');
-const User = require('../models/user');
+const User = require('../models/users');
 
 const savingsRouter = express.Router();
 

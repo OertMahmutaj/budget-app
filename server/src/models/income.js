@@ -8,7 +8,7 @@ const IncomeSchema = new mongoose.Schema({
   deletedAt: { type: Date },
 });
 
-blogSchema.set("toJSON", {
+IncomeSchema.set("toJSON", {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
     delete returnedObject._id;

@@ -1,6 +1,6 @@
 const express = require('express');
 const Fund = require('../models/fund');
-const User = require('../models/user');
+const User = require('../models/users');
 
 const fundRouter = express.Router();
 
