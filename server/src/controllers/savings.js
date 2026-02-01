@@ -1,46 +1,53 @@
-const express = require('express');
-const Savings = require('../models/savings');
-const User = require('../models/users');
+const Savings = require("../models/savings");
+const savingsRouter = require("express").Router();
+const { userExtractor } = require("../utils/middleware");
 
-const savingsRouter = express.Router();
-
-savingsRouter.get('/', async (req, res) => {
-  const savings = await Savings.find({}).populate('user', { username: 1 });
+savingsRouter.get("/", userExtractor, async (req, res) => {
+  const savings = await Savings.find({ user: req.user._id });
   res.json(savings);
 });
 
-savingsRouter.post('/', async (req, res) => {
-  const { amount, userId } = req.body;
-  const user = await User.findById(userId);
-  if (!user) return res.status(400).json({ error: 'Invalid user' });
+savingsRouter.post("/", userExtractor, async (req, res) => {
+  const { name, amount } = req.body;
 
-  const saving = new Savings({ amount, user: user._id });
-  const savedSaving = await saving.save();
+  const savings = new Savings({
+    name,
+    amount,
+    user: req.user._id,
+  });
 
-  user.savings = savedSaving._id;
-  await user.save();
+  const savedSavings = await savings.save();
+  req.user.savings = savedSavings._id;
+  await req.user.save();
 
-  res.status(201).json(savedSaving);
+  res.status(201).json(savedSavings);
 });
 
-savingsRouter.put('/:id', async (req, res) => {
-  const { amount } = req.body;
-  const updatedSaving = await Savings.findByIdAndUpdate(
-    req.params.id,
-    { amount, updatedAt: Date.now() },
-    { new: true }
+savingsRouter.put("/:id", userExtractor, async (req, res) => {
+  const { name, amount } = req.body;
+
+  const updatedSavings = await Savings.findOneAndUpdate(
+    { _id: req.params.id, user: req.user._id },
+    { name, amount },
+    { new: true, runValidators: true },
   );
-  res.json(updatedSaving);
+
+  if (!updatedSavings)
+    return res.status(404).json({ error: "savings not found" });
+
+  res.json(updatedSavings);
 });
 
-savingsRouter.delete('/:id', async (req, res) => {
-  const saving = await Savings.findByIdAndRemove(req.params.id);
-  if (saving) {
-    await User.findByIdAndUpdate(saving.user, { $unset: { savings: '' } });
-    res.status(204).end();
-  } else {
-    res.status(404).end();
-  }
+savingsRouter.delete("/:id", userExtractor, async (req, res) => {
+  const deletedSavings = await Savings.findOneAndDelete({
+    _id: req.params.id,
+    user: req.user._id,
+  });
+
+  if (!deletedSavings)
+    return res.status(404).json({ error: "savings not found" });
+
+  res.status(204).end();
 });
 
 module.exports = savingsRouter;

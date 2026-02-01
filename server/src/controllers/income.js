@@ -1,46 +1,53 @@
-const express = require('express');
-const Income = require('../models/income');
-const User = require('../models/users');
+const Income = require("../models/income");
+const incomeRouter = require("express").Router();
+const { userExtractor } = require("../utils/middleware");
 
-const incomeRouter = express.Router();
-
-incomeRouter.get('/', async (req, res) => {
-  const incomes = await Income.find({}).populate('user', { username: 1 });
+incomeRouter.get("/", userExtractor, async (req, res) => {
+  const incomes = await Income.find({ user: req.user._id });
   res.json(incomes);
 });
 
-incomeRouter.post('/', async (req, res) => {
-  const { amount, userId } = req.body;
-  const user = await User.findById(userId);
-  if (!user) return res.status(400).json({ error: 'Invalid user' });
+incomeRouter.post("/", userExtractor, async (req, res) => {
+  const { source, amount } = req.body;
 
-  const income = new Income({ amount, user: user._id });
+  const income = new Income({
+    source,
+    amount,
+    user: req.user._id,
+  });
+
   const savedIncome = await income.save();
-
-  user.income = savedIncome._id;
-  await user.save();
+  req.user.income = savedIncome._id;
+  await req.user.save();
 
   res.status(201).json(savedIncome);
 });
 
-incomeRouter.put('/:id', async (req, res) => {
-  const { amount } = req.body;
-  const updatedIncome = await Income.findByIdAndUpdate(
-    req.params.id,
-    { amount, updatedAt: Date.now() },
-    { new: true }
+incomeRouter.put("/:id", userExtractor, async (req, res) => {
+  const { source, amount } = req.body;
+
+  const updatedIncome = await Income.findOneAndUpdate(
+    { _id: req.params.id, user: req.user._id },
+    { source, amount },
+    { new: true, runValidators: true },
   );
+
+  if (!updatedIncome)
+    return res.status(404).json({ error: "income not found" });
+
   res.json(updatedIncome);
 });
 
-incomeRouter.delete('/:id', async (req, res) => {
-  const income = await Income.findByIdAndRemove(req.params.id);
-  if (income) {
-    await User.findByIdAndUpdate(income.user, { $unset: { income: '' } });
-    res.status(204).end();
-  } else {
-    res.status(404).end();
-  }
+incomeRouter.delete("/:id", userExtractor, async (req, res) => {
+  const deletedIncome = await Income.findOneAndDelete({
+    _id: req.params.id,
+    user: req.user._id,
+  });
+
+  if (!deletedIncome)
+    return res.status(404).json({ error: "income not found" });
+
+  res.status(204).end();
 });
 
 module.exports = incomeRouter;

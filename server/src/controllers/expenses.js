@@ -1,53 +1,55 @@
-const express = require('express');
-const Expense = require('../models/expenses');
-const User = require('../models/users');
+const Expenses = require("../models/expenses");
+const expensesRouter = require("express").Router();
+const { userExtractor } = require("../utils/middleware");
 
-const expensesRouter = express.Router();
-
-expensesRouter.get('/', async (req, res) => {
-  const expenses = await Expense.find({}).populate('user', { username: 1, name: 1 });
+expensesRouter.get("/", userExtractor, async (req, res) => {
+  const expenses = await Expenses.find({ user: req.user._id });
   res.json(expenses);
 });
 
-expensesRouter.get('/:id', async (req, res) => {
-  const expense = await Expense.findById(req.params.id).populate('user', { username: 1, name: 1 });
-  if (expense) res.json(expense);
-  else res.status(404).end();
-});
+expensesRouter.post("/", userExtractor, async (req, res) => {
+  const { name, amount } = req.body;
 
-expensesRouter.post('/', async (req, res) => {
-  const { name, amount, userId } = req.body;
+  const expense = new Expenses({
+    name,
+    amount,
+    user: req.user._id,
+  });
 
-  const user = await User.findById(userId);
-  if (!user) return res.status(400).json({ error: 'Invalid user' });
-
-  const expense = new Expense({ name, amount, user: user._id });
   const savedExpense = await expense.save();
-
-  user.expenses = user.expenses.concat(savedExpense._id);
-  await user.save();
+  req.user.expenses = req.user.expenses.concat(savedExpense._id);
+  await req.user.save();
 
   res.status(201).json(savedExpense);
 });
 
-expensesRouter.put('/:id', async (req, res) => {
+expensesRouter.put("/:id", userExtractor, async (req, res) => {
   const { name, amount } = req.body;
-  const updatedExpense = await Expense.findByIdAndUpdate(
-    req.params.id,
-    { name, amount, updatedAt: Date.now() },
-    { new: true }
+
+  const updatedExpense = await Expenses.findOneAndUpdate(
+    { _id: req.params.id, user: req.user._id },
+    { name, amount },
+    { new: true, runValidators: true },
   );
+
+  if (!updatedExpense) {
+    return res.status(404).json({ error: "expense not found" });
+  }
+
   res.json(updatedExpense);
 });
 
-expensesRouter.delete('/:id', async (req, res) => {
-  const expense = await Expense.findByIdAndRemove(req.params.id);
-  if (expense) {
-    await User.findByIdAndUpdate(expense.user, { $pull: { expenses: expense._id } });
-    res.status(204).end();
-  } else {
-    res.status(404).end();
+expensesRouter.delete("/:id", userExtractor, async (req, res) => {
+  const deletedExpense = await Expenses.findOneAndDelete({
+    _id: req.params.id,
+    user: req.user._id,
+  });
+
+  if (!deletedExpense) {
+    return res.status(404).json({ error: "expense not found" });
   }
+
+  res.status(204).end();
 });
 
 module.exports = expensesRouter;

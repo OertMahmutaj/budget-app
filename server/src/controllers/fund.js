@@ -1,46 +1,51 @@
-const express = require('express');
-const Fund = require('../models/fund');
-const User = require('../models/users');
+const Fund = require("../models/fund");
+const fundRouter = require("express").Router();
+const { userExtractor } = require("../utils/middleware");
 
-const fundRouter = express.Router();
-
-fundRouter.get('/', async (req, res) => {
-  const funds = await Fund.find({}).populate('user', { username: 1 });
-  res.json(funds);
+fundRouter.get("/", userExtractor, async (req, res) => {
+  const fund = await Fund.find({ user: req.user._id });
+  res.json(fund);
 });
 
-fundRouter.post('/', async (req, res) => {
-  const { amount, userId } = req.body;
-  const user = await User.findById(userId);
-  if (!user) return res.status(400).json({ error: 'Invalid user' });
+fundRouter.post("/", userExtractor, async (req, res) => {
+  const { name, amount } = req.body;
 
-  const fund = new Fund({ amount, user: user._id });
+  const fund = new Fund({
+    name,
+    amount,
+    user: req.user._id,
+  });
+
   const savedFund = await fund.save();
-
-  user.fund = savedFund._id;
-  await user.save();
+  req.user.fund = savedFund._id;
+  await req.user.save();
 
   res.status(201).json(savedFund);
 });
 
-fundRouter.put('/:id', async (req, res) => {
-  const { amount } = req.body;
-  const updatedFund = await Fund.findByIdAndUpdate(
-    req.params.id,
-    { amount, updatedAt: Date.now() },
-    { new: true }
+fundRouter.put("/:id", userExtractor, async (req, res) => {
+  const { name, amount } = req.body;
+
+  const updatedFund = await Fund.findOneAndUpdate(
+    { _id: req.params.id, user: req.user._id },
+    { name, amount },
+    { new: true, runValidators: true },
   );
+
+  if (!updatedFund) return res.status(404).json({ error: "fund not found" });
+
   res.json(updatedFund);
 });
 
-fundRouter.delete('/:id', async (req, res) => {
-  const fund = await Fund.findByIdAndRemove(req.params.id);
-  if (fund) {
-    await User.findByIdAndUpdate(fund.user, { $unset: { fund: '' } });
-    res.status(204).end();
-  } else {
-    res.status(404).end();
-  }
+fundRouter.delete("/:id", userExtractor, async (req, res) => {
+  const deletedFund = await Fund.findOneAndDelete({
+    _id: req.params.id,
+    user: req.user._id,
+  });
+
+  if (!deletedFund) return res.status(404).json({ error: "fund not found" });
+
+  res.status(204).end();
 });
 
 module.exports = fundRouter;
