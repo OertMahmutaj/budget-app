@@ -1,16 +1,55 @@
-# React + Vite
+# Budget App (v1)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple personal finance dashboard built with React that tracks income, expenses, savings, and emergency funds.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features (v1)
 
-## React Compiler
+- **Monthly & daily budget tracking*  
+  See your monthly income, expenses, daily budget, and leftover funds.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Savings allocation*
+  - Set a percentage of your monthly income to save.  
+  - Daily savings are calculated automatically.
 
-## Expanding the ESLint configuration
+- **Emergency Fund (EF) first allocation*
+  - Daily savings are automatically added to your emergency fund until the target is reached.  
+  - Remaining savings go to the general savings account.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **One allocation per day* 
+  - Prevents double allocation by tracking the `lastUpdated` date.
+
+- **Responsive dashboard*  
+  - Displays current income, expenses, daily budgets, savings progress, and emergency fund status.
+
+---
+
+## v2 Roadmap
+
+Planned improvements for the next version:
+
+- Backend allocation logic for reliability and multi-device consistency.
+- Daily record history for both emergency fund and savings.
+- Catch-up allocations for missed days.
+- Mid-day savings percentage updates that apply immediately.
+- Multiple savings goals and priorities.
+- Notifications and progress milestones.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18+ recommended)
+- npm or yarn
+- Git
+
+### Installation
+
+```bash
+git clone https://github.com/OertMahmutaj/budget-app.git
+cd budget-app
+npm install
+npm start
+
+
