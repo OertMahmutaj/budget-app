@@ -1,4 +1,4 @@
-const baseUrl = 'http://localhost:3005/income'
+const baseUrl = 'http://localhost:3001/income'
 
 export const createNew = async (income) =>{
     const options ={

@@ -1,4 +1,4 @@
-const baseUrl = "http://localhost:3005/emergencyFund"
+const baseUrl = "http://localhost:3001/emergencyFund"
 
 export const getEmergencyFund = async () => {
     const response = await fetch(baseUrl)

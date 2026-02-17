@@ -1,4 +1,4 @@
-const baseUrl = "http://localhost:3005/savings"
+const baseUrl = "http://localhost:3001/savings"
 
 export const getSavings = async ()=>{
     const response = await fetch(baseUrl)
